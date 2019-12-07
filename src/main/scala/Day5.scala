@@ -23,8 +23,8 @@ object Day5 {
           mem(mem(pc + 3)) = i * j
           pc += 4
         }
-        case 3 => {mem(mem(pc + 1)) = 5; pc += 2}
-        case 4 => {println(mem(mem(pc + 1))); pc += 2}
+        case 3 => { mem(mem(pc + 1)) = 5; pc += 2 }
+        case 4 => { println(mem(mem(pc + 1))); pc += 2 }
         case 5 => {
           val (i,j) = getValues()
           if (i != 0) pc = j
@@ -37,15 +37,15 @@ object Day5 {
         }
         case 7 => {
           val (i,j) = getValues()
-          mem(mem(pc + 3)) = if (i < j) 1 else  0
+          mem(mem(pc + 3)) = if (i < j) 1 else 0
           pc += 4
         }
         case 8 => {
           val (i,j) = getValues()
-          mem(mem(pc + 3)) = if (i == j) 1 else  0
+          mem(mem(pc + 3)) = if (i == j) 1 else 0
           pc += 4
         }
-        case _ => {println("mem(pc) = " + mem(pc)); println("instruction = " +mem(pc).toString.last.toInt); throw new Exception()}
+        case _ => {println("mem(pc) = " + mem(pc) + "\ninstruction = " + mem(pc).toString.last.toInt); throw new Exception()}
       }
     }
     mem(0)

@@ -32,7 +32,7 @@ object Day4 {
         if (x < low) {
           fail = true
         }
-        else if (j + 1 < in.length && x == in(j + 1) && in.count(_ == x) == 2) oneDouble = true
+        else if (!oneDouble && j + 1 < in.length && x == in(j + 1) && in.count(_ == x) == 2) oneDouble = true
         low = x
         j += 1
       }
