@@ -1,5 +1,5 @@
 object Main {
-  def main(args: Array[String]) = {
+  def main(args: Array[String]): Unit = {
     scala.io.StdIn.readLine("Enter day to run: ").toInt match {
       case 1 => Day1()
       case 2 => Day2()
