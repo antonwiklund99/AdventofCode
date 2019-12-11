@@ -1,4 +1,4 @@
-case class Pos(x: Double, y: Double) extends Ordered[Pos] {
+case class Pos(x: Double, y: Double) {
   def +(p: Pos) = new Pos(x + p.x, y + p.y)
   def -(p: Pos) = new Pos(x - p.x, y - p.y)
   def angleTo(p: Pos): Double = {
@@ -14,15 +14,7 @@ case class Pos(x: Double, y: Double) extends Ordered[Pos] {
     else 2*math.Pi - a
   }
 
-  def compare(that: Pos): Int = {
-    if (that.y == this.y) {
-      if (that.x == that.y) 0
-      else if (this.x > that.x) 1
-      else -1
-    }
-    else if (this.y > that.y) 1
-    else -1
-  }
+  def length(p: Pos): Double = math.hypot(math.abs(x -p.x), math.abs(y - p.y))
 }
 
 object Day10 {
@@ -31,35 +23,39 @@ object Day10 {
   def part1(): Unit = {
     val grid = input.map(_.split(""))
     var positions: Vector[Pos] = Vector.empty
-    for (i <- grid.indices) {
-      for (j <- grid(0).indices) {
-        if (grid(i)(j) == "#") positions :+= Pos(j,i)
-      }
+    for (i <- grid.indices; j <- grid(0).indices) {
+      if (grid(i)(j) == "#") positions :+= Pos(j,i)
     }
-    
-    var res = 0
-    for (pos <- positions) {
-      var sum = 0
-      sum = positions.diff(Vector(pos)).map(p => pos.angleTo(p)).distinct.length
-      res = math.max(sum,res)
-    }
-    println(res)
+    println(positions.map(pos => positions.diff(Vector(pos)).map(p => pos.angleTo(p)).distinct.length).max)
   }
 
   def part2(): Unit = {
     val grid = input.map(_.split(""))
     var positions: Vector[Pos] = Vector.empty
-    val base = Pos(31,20)
+    val base = Pos(20,31)
     for (i <- grid.indices) {
       for (j <- grid(0).indices) {
         // Byt plats på x och y axeln
-        if (grid(i)(j) == "#") positions :+= Pos(j, i)
+        if (grid(i)(j) == "#") positions :+= Pos(i,j)
       }
     }
-    val xs = positions.diff(Vector(base)).sortBy(p => base.angleTo(p))
-    println(xs)
-    //for (i <- 0 until 200) {
-    //}
+    val xs = positions.diff(Vector(base)).sortBy(p => {
+      if (base.angleTo(p) == math.Pi) 0
+      else if (base.angleTo(p) > math.Pi) 3*math.Pi - base.angleTo(p)
+      else math.Pi - base.angleTo(p)
+    })
+    
+    var count = 0
+    var i = 0
+    var lastKill = Pos(0,0)
+    while (count < 200) {
+      val pts = xs.distinct.filter(p => xs(i).angleTo(base) == p.angleTo(base)).sortBy(_.length(base))
+      lastKill = pts.head
+      count += 1
+      i += pts.length
+    }
+    println(lastKill)
+    println(lastKill.y*100 + lastKill.x)
   }
 
   def apply() = {
