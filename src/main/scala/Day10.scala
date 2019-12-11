@@ -1,33 +1,27 @@
-case class Pos(x: Double, y: Double) {
+case class Pos(x: Double, y: Double) extends Ordered[Pos] {
   def +(p: Pos) = new Pos(x + p.x, y + p.y)
-  def -(p: Pos) = new Pos(x - p.x, y + p.y)
-  def pointsBetween(p: Pos): Vector[Pos] = {
-    var res: Vector[Pos] = Vector.empty
-    if (y == p.y) {
-      for (i <- math.min(x, p.x).toInt + 1 to math.max(x, p.x).toInt - 1) {
-        res :+= Pos(i.toDouble,y)
-      }
+  def -(p: Pos) = new Pos(x - p.x, y - p.y)
+  def angleTo(p: Pos): Double = {
+    val diff = p - this
+    var a = math.atan2(math.abs(diff.y), math.abs(diff.x))
+    // Första kvadrant
+    if (diff.x >= 0 && diff.y >= 0) a
+    // Andra kvadranten
+    else if (diff.x < 0 && diff.y >= 0) math.Pi - a
+    // Tredje kvadranten
+    else if (diff.x < 0 && diff.y < 0) math.Pi + a
+    // Fjärde kvadranten
+    else 2*math.Pi - a
+  }
+
+  def compare(that: Pos): Int = {
+    if (that.y == this.y) {
+      if (that.x == that.y) 0
+      else if (this.x > that.x) 1
+      else -1
     }
-    else if (x == p.x) {
-      for (i <- math.min(y, p.y).toInt + 1 to math.max(y, p.y).toInt - 1) {
-        res :+= Pos(x,i.toDouble)
-      }
-    }
-    else {
-      val k: Double = (y - p.y) / (x - p.x)
-      val m: Double = y - k*x
-      //println("y = " + k + "x + " + m)
-      var incr = 0
-      if (x > p.x) incr = -1
-      else incr = 1
-      for (xx <- x.toInt + incr to p.x.toInt - incr by incr) {
-        val yy = k*xx.toDouble + m
-        if ((yy % 1) == 0) {
-          res :+= Pos(xx.toDouble, yy)
-        }
-      }
-    }
-    res
+    else if (this.y > that.y) 1
+    else -1
   }
 }
 
@@ -42,20 +36,30 @@ object Day10 {
         if (grid(i)(j) == "#") positions :+= Pos(j,i)
       }
     }
+    
     var res = 0
-    for (p <- positions) {
+    for (pos <- positions) {
       var sum = 0
-      for (pos <- positions.diff(Vector(p))) {
-        val interPoints = p.pointsBetween(pos)
-        if (interPoints.forall(f => !positions.contains(f))) sum += 1
-      }
-      res = math.max(sum, res)
+      sum = positions.diff(Vector(pos)).map(p => pos.angleTo(p)).distinct.length
+      res = math.max(sum,res)
     }
     println(res)
   }
 
   def part2(): Unit = {
-
+    val grid = input.map(_.split(""))
+    var positions: Vector[Pos] = Vector.empty
+    val base = Pos(31,20)
+    for (i <- grid.indices) {
+      for (j <- grid(0).indices) {
+        // Byt plats på x och y axeln
+        if (grid(i)(j) == "#") positions :+= Pos(j, i)
+      }
+    }
+    val xs = positions.diff(Vector(base)).sortBy(p => base.angleTo(p))
+    println(xs)
+    //for (i <- 0 until 200) {
+    //}
   }
 
   def apply() = {
@@ -63,6 +67,6 @@ object Day10 {
     println("Running part 1")
     part1()
     println("Running part 2")
-    //part2()
+    part2()
   }
 }
