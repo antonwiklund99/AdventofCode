@@ -92,53 +92,49 @@ object Day13 {
     comp.mem(0) = 2
     var tiles: scala.collection.mutable.Map[(Long,Long),Tile] = scala.collection.mutable.Map.empty
     var halt = false
-    var ballDirX = 0L
-    var lastBallX = 0L
-    var ballDirY = 0L
-    var lastBallY = 0L
     while(!halt) {
       var res: Vector[Long] = Vector.empty
       var ball = tiles.values.find(_.id == 4)
       //println(ball)
       var player = tiles.values.find(_.id == 3)
-      var x = 0
       for (i <- 0 to 2) {
         if (player == None || ball == None) res :+= comp.run(0)
-        else if (ball.get.x == player.get.x && ball.get.y == player.get.y - 1) res :+= comp.run(0)
-        else if (player.get.x > ball.get.x + ballDirX) res :+= comp.run(-1)
-        else if (player.get.x < ball.get.x + ballDirX) res :+= comp.run(1)
+        else if (player.get.x > ball.get.x) res :+= comp.run(-1)
+        else if (player.get.x < ball.get.x) res :+= comp.run(1)
         else res :+= comp.run(0)
-        x += 1
       }
       //println(tiles.values.filter(p => p.x == 22 && p.y == 20).toVector)
       //if (tiles.contains((res(0),res(1)))) println(tiles((res(0),res(1))))
-      //println(res)
+      
       if (res(2) == 4) {
         println("BALL MOVED TO " + res(0) + "," + res(1))
-        ballDirX = {
-          if (tiles.contains((res(0) + ballDirX,res(1) + ballDirY)) && (tiles((res(0) + ballDirX,res(1) + ballDirY)).id == 2 ||
-              tiles((res(0) + ballDirX,res(1) + ballDirY)).id == 1))  {
-            println("its gonna hit wall or block")
-            if (ballDirX == -1) 1 else -1}
-          else res(0) - lastBallX
-        }
-        ballDirY = {
-          if (tiles.contains((res(0) + ballDirX,res(1) + ballDirY)) && (tiles((res(0) + ballDirX,res(1) + ballDirY)).id == 2 ||
-              tiles((res(0) + ballDirX,res(1) + ballDirY)).id == 1 || tiles((res(0) + ballDirX,res(1) + ballDirY)).id == 3)) {
-            println("its gonna hit wall or block or padel")
-            if (ballDirY == -1) 1 else -1
-          }
-          else res(1) - lastBallY
-        }
-        println(s"x = $ballDirX y = $ballDirY")
-        lastBallX = res(0)
-        lastBallY = res(1)
       }
       else if (res(2) == 3) println("PADEL MOVED TO " + res(0) + "," + res(1))
       if (res.forall(_ == -1)) halt = true
       else if (res(0) == -1 && res(1) == 0) println(res(2))
       else {
         tiles((res(0),res(1))) = Tile(res(0), res(1), res(2))
+      }
+      //printGrid(tiles)
+      //scala.io.StdIn.readLine("prompt")
+    }
+    def printGrid(xs: scala.collection.mutable.Map[(Long,Long),Tile]) = {
+      val xMax = xs.toVector.map(_._2.x).max
+      val yMax = xs.toVector.map(_._2.y).max
+      for (i <- 0 to yMax.toInt) {
+        for (j <- 0 to xMax.toInt) {
+          if (xs.contains((j,i)))
+            print(xs((j,i)).id match {
+              case 0 => "."
+              case 1 => "|"
+              case 2 => "#"
+              case 3 => "_"
+              case 4 => "0"
+              case e => "9999"
+            })
+          else print("å")
+        }
+        println("")
       }
     }
   }
