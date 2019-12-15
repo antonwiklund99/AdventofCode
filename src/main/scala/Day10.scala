@@ -1,6 +1,7 @@
 case class Pos(x: Double, y: Double) {
-  def +(p: Pos) = new Pos(x + p.x, y + p.y)
-  def -(p: Pos) = new Pos(x - p.x, y - p.y)
+  def +(p: Pos) = Pos(x + p.x, y + p.y)
+  def -(p: Pos) = Pos(x - p.x, y - p.y)
+  def ==(p: Pos) = p.x == x && p.y == y
   def angleTo(p: Pos): Double = {
     val diff = p - this
     var a = math.atan2(math.abs(diff.y), math.abs(diff.x))

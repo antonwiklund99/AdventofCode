@@ -15,6 +15,8 @@ class Comp13(var mem: Array[Long], var pc: Int = 0, var relativeBase: Int = 0) {
     res.toVector
   }
 
+  override def clone(): Comp13 = new Comp13(mem.clone(), pc, relativeBase)
+
   def run(input: Long): Long = {
     while (pc < mem.length && mem(pc) != 99) {
       //println("pc = " + pc + " mem(pc) = " + mem(pc) + " relativeBase = " + relativeBase + " mem(12) = " + mem(12))
