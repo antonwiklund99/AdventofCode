@@ -59,7 +59,7 @@ object Day15 {
         mainPosList ++= newLocations.map(_.pos)
       }
       oxy = droids.find(p => p.status == 2)
-      //printGrid(mainPosList)
+      printGrid(mainPosList)
     }
     oxy.get
   }
