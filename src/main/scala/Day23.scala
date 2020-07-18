@@ -1,9 +1,11 @@
 import scala.collection.mutable.Queue
 import scala.collection.mutable.ArrayBuffer
+import scala.collection.mutable.Set
 
 case class Package(address: Int, x: Long, y: Long)
 
-class NetworkComp(var mem: Array[Long], var pc: Int = 0, var relativeBase: Int = 0, val outputQueue: Queue[Package]) {
+class NetworkComp(var mem: Array[Long], var pc: Int = 0, var relativeBase: Int = 0) {
+  val outputQueue: Queue[Package] = Queue.empty
   var lastOutput = 0L
   val input: Queue[Long] = Queue.empty
   private def parseArgs(numArgs: Int): Vector[Int] = {
@@ -24,10 +26,10 @@ class NetworkComp(var mem: Array[Long], var pc: Int = 0, var relativeBase: Int =
 
   override def clone(): Comp13 = new Comp13(mem.clone(), pc, relativeBase)
 
-  def run() = {
-    var outputBuff: ArrayBuffer[Long] = ArrayBuffer.empty
-    while (pc < mem.length && mem(pc) != 99) {
-      println("pc = " + pc + " mem(pc) = " + mem(pc) + " mem(pc+1) = " + mem(pc+1) + " mem(pc+2) = " + mem(pc+2)+ " relativeBase = " + relativeBase + " mem(62) = " + mem(62))
+  var outputBuff: ArrayBuffer[Long] = ArrayBuffer.empty
+  def step() = {
+    if (pc < mem.length && mem(pc) != 99) {
+      //println("pc = " + pc + " mem(pc) = " + mem(pc) + " mem(pc+1) = " + mem(pc+1) + " mem(pc+2) = " + mem(pc+2)+ " relativeBase = " + relativeBase + " mem(62) = " + mem(62))
       mem(pc).toString.last.toString.toInt match {
         case 1 => {
           val indexes = parseArgs(3)
@@ -80,21 +82,10 @@ class NetworkComp(var mem: Array[Long], var pc: Int = 0, var relativeBase: Int =
         }
         case _ => {println("mem(pc) = " + mem(pc)); println("instruction = " + mem(pc).toString.last.toString.toInt); throw new Exception()}
       }
+    } else {
+      println("CANT RUN")
+      throw new Exception()
     }
-  }
-}
-
-class Network(outputQueue: Queue[Package], networks: Array[NetworkComp]) extends Thread {
-  override def run() = {
-    while (outputQueue.find(p => p.address == 255) == None) {
-      if (!outputQueue.isEmpty) {
-        val p = outputQueue.dequeue()
-        println("FOUND OUTPUT " + p)
-        networks(p.address).input ++ Vector(p.x,p.y)
-      }
-    }
-    println(outputQueue.find(p => p.address == 255).get)
-    System.exit(0)
   }
 }
 
@@ -102,16 +93,75 @@ object Day23 {
   val initMem = scala.io.Source.fromFile("data/data23.txt", "UTF-8").getLines.toVector(0).split(',').map(_.toLong).toVector
 
   def part1(): Unit = {
-    val outputQueue: Queue[Package] = Queue.empty
-    val networks: Array[NetworkComp] = Array.fill(50)(new NetworkComp(initMem.toArray ++ Array.fill(10000)(0L), 0, 0,outputQueue))
-    val n = new Network(outputQueue, networks)
-    /*for (i <- networks) i.start()
-    n.start()*/
-    networks(0).run()
+    val networks: Array[NetworkComp] = Array.fill(50)(new NetworkComp(initMem.toArray ++ Array.fill(10000)(0L), 0, 0))
+    // give address on input
+    for (i <- networks.indices) {
+      networks(i).input.addOne(i.toLong)
+    }
+    val packageQueue: Queue[Package] = Queue.empty
+    // step each comp every iteration and handle packages
+    while (packageQueue.find(p => p.address == 255) == None) {
+      while (packageQueue.size != 0) {
+        val p: Package = packageQueue.dequeue()
+        networks(p.address).input += p.x
+        networks(p.address).input += p.y
+      }
+      networks.foreach(comp => {
+        comp.step()
+        while (comp.outputQueue.size != 0) {
+          val p = comp.outputQueue.dequeue()
+          packageQueue += p
+        }
+      })
+    }
+    println(packageQueue.find(p => p.address == 255).get.y)
   }
 
   def part2(): Unit = {
-
+    val networks: Array[NetworkComp] = Array.fill(50)(new NetworkComp(initMem.toArray ++ Array.fill(10000)(0L), 0, 0))
+    // give address on input
+    for (i <- networks.indices) {
+      networks(i).input.addOne(i.toLong)
+    }
+    var lastPackage: Package = Package(-1,0,0)
+    val packageQueue: Queue[Package] = Queue.empty
+    val sentNATY: Set[Long] = Set.empty
+    var emptyInRow = 0
+    // step each comp every iteration and handle packages
+    while (true) {
+      while (packageQueue.size != 0) {
+        val p: Package = packageQueue.dequeue()
+        if (p.address == 255) {
+          lastPackage = p
+        } else {
+          networks(p.address).input += p.x
+          networks(p.address).input += p.y
+        }
+      }
+      networks.foreach(comp => {
+        comp.step()
+        while (comp.outputQueue.size != 0) {
+          val p = comp.outputQueue.dequeue()
+          packageQueue += p
+        }
+      })
+      if (packageQueue.size == 0) {
+        emptyInRow += 1
+      } else {
+        emptyInRow = 0
+      }
+      // check if idle
+      if (emptyInRow > 1000) {
+        networks(0).input += lastPackage.x
+        networks(0).input += lastPackage.y
+        if (sentNATY.contains(lastPackage.y)) {
+          println(lastPackage.y)
+          return
+        }
+        sentNATY += lastPackage.y
+        emptyInRow = 0
+      }
+    }
   }
 
   def apply() = {
@@ -119,6 +169,6 @@ object Day23 {
     println("Running part 1")
     part1()
     println("Running part 2")
-    //part2()
+    part2()
   }
 }

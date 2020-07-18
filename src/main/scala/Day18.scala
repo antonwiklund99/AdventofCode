@@ -1,76 +1,149 @@
+import scala.collection.mutable.Map
+import scala.collection.mutable.Set
 import scala.collection.mutable.ArrayBuffer
-import scala.collection.mutable.Queue
 
 case class IPos(x: Int, y: Int) {
   def +(p: IPos) = IPos(x + p.x, y + p.y)
   def -(p: IPos) = IPos(x - p.x, y - p.y)
+  def allDirections() = Array(IPos(x + 1, y), IPos(x - 1, y), IPos(x, y + 1), IPos(x, y - 1))
 }
-
-case class Key(name: String, pos: IPos) {
-  val distanceToKeys: Map[String, Int] = Map.empty
-}
-
-case class State(pos: IPos, walkedKeys: Vector[Key], steps: Int)
 
 object Day18 {
-  val input = scala.io.Source.fromFile("data/data18.txt", "UTF-8").getLines.map(_.split("")).toArray
-  val alphabet: Set[String] = "abcdefghijklmnopqrstuvwxyz".split("").toSet
-  val keys: Map[String, Key] = input.flatten.filter(p => alphabet.contains(p)).map({ s =>
-    val y = input.indexWhere(_.contains(s))
-    (s -> Key(s, IPos(input(y).indexOf(s), y)))
-  }).toMap
-  val keyNames = keys.map(_._1).toSet
-  val doorNames = keyNames.map(_.toUpperCase())
-  val entrance: IPos = {
-    val y = input.indexWhere(_.contains("@"))
-    IPos(input(y).indexOf("@"), y)
-  }
-  /*
-  def part1(): Unit = {
-    for (fromKey <- keys; toKey <- keys; if (fromKey != toKey && !fromKey._2.distanceToKeys.contains(toKey._1))) {
-      getKeyInfo(fromKey._2, toKey._2)
+  val input = scala.io.Source.fromFile("data/data18.txt", "UTF-8").getLines.map(_.toCharArray).toArray
+  
+  val capitalLetters: scala.collection.immutable.Set[Char] = ('A' to 'Z').toSet
+  val smallLetters: scala.collection.immutable.Set[Char] = ('a' to 'z').toSet
+  val allKeys: scala.collection.immutable.Set[Char] = input.flatten.filter(smallLetters.contains(_)).toSet
+
+  var calculated1: Map[IPos, Map[Set[Char], Int]] = Map.empty // map where lowest step from pos with key is calculated[pos][keys]
+
+  def evalPosition1D(pos: Array[Array[Char]], keys: Set[Char], cutoff: Int): Int = {
+    if (keys == allKeys) {
+      return 0;
+    } 
+    
+    val y: Int = pos.indexWhere(a => a.contains('@'))
+    val start: IPos = IPos(pos(y).indexOf('@'), y)
+    if (calculated1.contains(start) && calculated1(start).contains(keys)) {
+      return calculated1(start)(keys);
+    } else {
+      var visited: Set[IPos] = Set(start)
+      var current: Set[IPos] = Set(start)
+      var stepsAdded: Int = 0
+      var stepsBest: Int = Integer.MAX_VALUE - 1000
+      var stepsSinceKey: Int = 0
+      while (current.size != 0) {
+        if (stepsAdded > cutoff) {
+          return Integer.MAX_VALUE - 1000
+        }
+        stepsAdded += 1
+        current = current.map(_.allDirections).flatten
+
+        for (p <- current) {
+          val value = pos(p.y)(p.x)
+          if (value == '#' || visited.contains(p) || (capitalLetters.contains(value) && !keys.contains(value.toLower))) {
+            current.remove(p)
+          }
+          else if (allKeys.contains(value)) {
+            pos(p.y)(p.x) = '@'
+            pos(start.y)(start.x) = '.'
+            keys.add(value)
+            var res = stepsAdded + evalPosition1D(pos, keys, Math.min(stepsBest - stepsSinceKey, cutoff - stepsAdded))
+            stepsBest = Math.min(res, stepsBest)
+            pos(p.y)(p.x) = value
+            pos(start.y)(start.x) = '@'
+            keys.remove(value)
+            current.remove(p)
+            stepsSinceKey = 0
+          }
+          else {
+            stepsSinceKey += 1
+          }
+          visited.add(p)
+        }
+      }      
+      if (!calculated1.contains(start)) calculated1(start) = Map.empty
+      calculated1(start) += ((keys.clone(), stepsBest))
+      stepsBest
     }
+  }
+  
+  var calculated2: Map[Set[IPos], Map[Set[Char], Int]] = Map.empty
+  def evalPosition4D(pos: Array[Array[Char]], keys: Set[Char]): Int = {
+    if (keys == allKeys) {
+      return 0;
+    } 
+    
+    var starts: Set[IPos] = Set.empty
+    for (y <- pos.indices) {
+      for (x <- pos(y).indices) {
+        if (pos(y)(x) == '@') {
+          starts.add(IPos(x,y))
+        }
+      }
+    }
+
+    if (calculated2.contains(starts) && calculated2(starts).contains(keys)) {
+      return calculated2(starts)(keys);
+    } else {
+      var stepsBest: Int = Integer.MAX_VALUE - 1000
+      starts.foreach(start => {
+        var visited: Set[IPos] = Set(start)
+        var current: Set[IPos] = Set(start)
+        var stepsAdded: Int = 0
+        while (current.size != 0) {
+          stepsAdded += 1
+          current = current.map(_.allDirections).flatten
+
+          for (p <- current) {
+            val value = pos(p.y)(p.x)
+            if (value == '#' || visited.contains(p) || (capitalLetters.contains(value) && !keys.contains(value.toLower))) {
+              current.remove(p)
+            }
+            else if (allKeys.contains(value)) {
+              var x = pos.updated(p.y, pos(p.y).updated(p.x, '@'))
+              x.update(start.y, x(start.y).updated(start.x, '.'))
+              keys.add(value)
+              var res = stepsAdded + evalPosition4D(x, keys)
+              stepsBest = Math.min(res, stepsBest)
+              keys.remove(value)
+              current.remove(p)
+            }
+            visited.add(p)
+          }
+        }
+      })
+      if (!calculated2.contains(starts)) calculated2(starts) = Map.empty
+      calculated2(starts) += ((keys.clone(), stepsBest))
+      stepsBest
+    }
+  }
+
+  def part1(): Unit = {
+    println(evalPosition1D(input, Set.empty, Integer.MAX_VALUE - 1000))
   }
 
   def part2(): Unit = {
-
+    val y: Int = input.indexWhere(a => a.contains('@'))
+    val x: Int = input(y).indexOf('@')
+    // Split
+    input(y - 1)(x - 1) = '@'
+    input(y - 1)(x)     = '#'
+    input(y - 1)(x + 1) = '@'
+    input(y)(x - 1) = '#'
+    input(y)(x)     = '#'
+    input(y)(x + 1) = '#'
+    input(y + 1)(x - 1) = '@'
+    input(y + 1)(x)     = '#'
+    input(y + 1)(x + 1) = '@'
+    println(evalPosition4D(input, Set()))
   }
 
-  def getKeyInfo(fromKey: Key, toKey: Key): Unit = {
-    val mainPosList: scala.collection.mutable.Set[IPos] = scala.collection.mutable.Set(IPos(0,0))
-    val states: Queue[State] = Queue(State(fromKey.pos, Vector.empty, 0))
-    var found = false
-    while (!found) {
-      for (i <- states.indices) {
-        val state = states.dequeue()
-        var newLocations: Vector[State] = Vector.empty
-        for (i <- state.pos.y - 1 to state.pos.y + 1; j <- state.pos.x-1 to state.pos.x + 1){
-          if ((state.pos.x == j || state.pos.y == i) && !mainPosList.contains(IPos(j,i)) && input(j)(i) != "#") {
-            if (keyNames.contains(input(i)(j))) {
-              state.walkedKeys.foreach({k => 
-                if (!k.distanceToKeys.contains(input(i)(j))){
-                  keys(k.name).distanceToKeys(input(i)(j)) = state.steps - fromKey.distanceToKeys(k.name)
-                  keys(input(i)(j)).distanceToKeys(k.name) = state.steps - fromKey.distanceToKeys(k.name)
-                }
-              })
-              fromKey.distanceToKeys(input(i)(j)) = state.steps
-              keys(input(i)(j)).distanceToKeys(fromKey.name) = state.steps
-              newLocations :+= State(IPos(j,i), state.walkedKeys :+ keys(input(i)(j)), state.steps + 1)
-            }
-            else newLocations :+= State(IPos(j,i), state.walkedKeys, state.steps + 1)
-          }
-        }
-        states ++= newLocations
-        mainPosList ++= newLocations.map(_.pos)
-      }
-    }
-  }
-  */
   def apply() = {
     println("SOLUTION DAY 18")
     println("Running part 1")
-    //part1()
+    part1()
     println("Running part 2")
-    //part2()
+    part2()
   }
 }

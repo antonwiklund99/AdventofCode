@@ -27,9 +27,9 @@ class Comp13(var mem: Array[Long], var pc: Int = 0, var relativeBase: Int = 0) {
           pc += 4
         }
         case 2 => {
-            val indexes = parseArgs(3)
-            mem(indexes(2)) = mem(indexes(0)) * mem(indexes(1))
-            pc += 4
+          val indexes = parseArgs(3)
+          mem(indexes(2)) = mem(indexes(0)) * mem(indexes(1))
+          pc += 4
         }
         case 3 => {
           val indexes = parseArgs(1)
