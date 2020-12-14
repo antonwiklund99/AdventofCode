@@ -16,11 +16,72 @@ public class Day5 {
 	}
 	
 	private void part1() {
-		
+		int max = 0;
+		for (String line: input) {
+			int upper = 127;
+			int lower = 0;
+			for (int i = 0; i < 7; i++) {
+				if (line.charAt(i) == 'F') {
+					upper -= (upper - lower)/2 + 1;
+				} else {
+					lower += (upper - lower)/2 + 1;
+				}
+			}
+			int row = lower;
+			upper = 7;
+			lower = 0;
+			for (int i = 7; i < 10; i++) {
+				if (line.charAt(i) == 'L') {
+					upper -= (upper - lower)/2 + 1;
+				} else {
+					lower = (upper - lower)/2 + 1;
+				}
+			}
+			max = Math.max(max, 8*row + upper);
+		}
+		System.out.println(max);
 	}
 	
 	private void part2() {
+		Set<Integer> ids = new HashSet<>();
+		int max = 0;
+		int min = Integer.MAX_VALUE;
+		for (String line: input) {
+			int upper = 127;
+			int lower = 0;
+			for (int i = 0; i < 7; i++) {
+				if (line.charAt(i) == 'F') {
+					upper -= (upper - lower)/2 + 1;
+				} else {
+					lower += (upper - lower)/2 + 1;
+				}
+			}
+			int row = lower;
+			upper = 7;
+			lower = 0;
+			for (int i = 7; i < 10; i++) {
+				if (line.charAt(i) == 'L') {
+					upper -= (upper - lower)/2 + 1;
+				} else {
+					lower += (upper - lower)/2 + 1;
+				}
+			}
+			ids.add(8*row + upper);
+			max = Math.max(max, 8*row + upper);
+			min = Math.min(min, 8*row + upper);
+		}
 		
+		int middle = max - (max - min)/2;
+		for (int i = 0; i < (max - min)/2; i++) {
+			if (!ids.contains(middle - i) && ids.contains(middle - i + 1) && ids.contains(middle - i - 1)) {
+				System.out.println(middle - i);
+				break;
+			}
+			if (!ids.contains(middle + i) && ids.contains(middle + i + 1) && ids.contains(middle + i - 1)) {
+				System.out.println(middle + i);
+				break;
+			}
+		}
 	}
 	
 	public static void main(String[] args) throws Exception {
