@@ -2,8 +2,6 @@ package aoc2020;
 
 import java.io.*;
 import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 public class Day13 {
@@ -17,11 +15,11 @@ public class Day13 {
 	}
 	
 	private static long modInverse(long a, long m) { 
-        a = a % m; 
-        for (int i = 1; i < m; i++) {
-            if ((a * i) % m == 1) return i;
-        }
-        return 1; 
+		a = a % m; 
+		for (int i = 1; i < m; i++) {
+		    if ((a * i) % m == 1) return i;
+		}
+		return 1; 
     }
 	
 	private void part1() {	

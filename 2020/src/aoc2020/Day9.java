@@ -2,8 +2,6 @@ package aoc2020;
 
 import java.io.*;
 import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 public class Day9 {
 	private List<Long> input = new ArrayList<>();
