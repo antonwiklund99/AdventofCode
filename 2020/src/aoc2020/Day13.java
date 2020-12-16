@@ -20,7 +20,7 @@ public class Day13 {
 		    if ((a * i) % m == 1) return i;
 		}
 		return 1; 
-    }
+	}
 	
 	private void part1() {	
 		long earliest = Long.parseLong(input.get(0));
