@@ -31,6 +31,11 @@ public class Point2D {
 		y += dy;
 	}
 	
+	public boolean equals(Object o) {
+		Point2D other = (Point2D) o;
+		return other.y == y && other.x == x;
+	}
+	
 	public String toString() {
 		return "Point(" + x + ", " + y + ")";
 	}
