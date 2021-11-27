@@ -6,6 +6,7 @@ import java.util.regex.*;
 
 public class Day20 {
 	private List<Tile> tiles = new ArrayList<>();
+	private Tile[][] tileArrangement;
 	public final int EDGE_LENGTH = 10;
 	
 	Day20() throws FileNotFoundException {
@@ -22,173 +23,106 @@ public class Day20 {
 			}
 			tiles.add(new Tile(Integer.parseInt(m.group(1)), grid));
 		}
+		tileArrangement = new Tile[(int) Math.sqrt(tiles.size())][(int) Math.sqrt(tiles.size())];
 		
-		for (int k = 0; k < 5; k++) {
-			Tile t = tiles.get(3);
-			System.out.println(t + " x " + t.l + " " + t.r + " " + t.u + " " + t.d);
-			t.rotateRight();
-		}
-		for (int i = 0; i < tiles.size(); i++) {
-			System.out.println(tiles.get(1).r + " " + tiles.get(1).l + " " + tiles.get(1).u + " " + tiles.get(1).d + " " +tiles.get(1).adjusted);
-			for (int j = 0; j < tiles.size(); j++) {
-				if (i == j) continue;
-				Tile t1 = tiles.get(i);
-				Tile t2 = tiles.get(j);
-				if (t1.left == t2 || t1.right == t2 || t1.up == t2 || t1.down == t2) {
-					System.out.println(t1 + " has alreadt been matched with " + t2);
-					continue;
+		// Generate all possible tiles
+		ArrayList<Tile> possibleTiles = new ArrayList<>();
+		for (Tile tile : tiles) {
+			for (int n1 = 0; n1 < 2; n1++) {
+				for (int n2 = 0; n2 < 4; n2++) {
+					possibleTiles.add(tile);
+					tile = tile.rotated();
 				}
-				System.out.println("WE MATCHING " + t1 + " " + t2);
-				System.out.println(t1.u + " " + t1.d + " " + t1.r + " " + t1.l);
-				System.out.println(t2.u + " " + t2.d + " " + t2.r + " " + t2.l);
-				Tile adjustable;
-				if (!t1.adjusted) {
-					adjustable = t1;
-				} else if (!t2.adjusted) {
-					adjustable = t2;
-				} else {
-					System.out.println("both " + t1 + " and " + t2 + " has been adjusted. Only compare");
-					System.out.println(t1.u + " " + t1.d + " " + t1.r + " " + t1.l);
-					System.out.println(t2.u + " " + t2.d + " " + t2.r + " " + t2.l);
-					if (t1.u == t2.d) {
-						t1.up = t2;
-						t2.down = t1;
-					} else if (t1.d == t2.u) {
-						t1.down = t2;
-						t2.up = t1;
-					} else if (t1.r == t2.l) {
-						t1.right = t2;
-						t2.left = t1;
-					} else if (t1.l == t2.r) {
-						t1.left = t2;
-						t2.right = t1;
-					}
-					continue;
-				}
-				// Exact + Rotations
-				boolean match = false;
-				for (int k = 0; k < 4; k++) {
-					if (t1.u == t2.d) {
-						t1.up = t2;
-						t2.down = t1;
-						match = true;
-						break;
-					} else if (t1.d == t2.u) {
-						t1.down = t2;
-						t2.up = t1;
-						match = true;
-						break;
-					} else if (t1.r == t2.l) {
-						t1.right = t2;
-						t2.left = t1;
-						match = true;
-						break;
-					} else if (t1.l == t2.r) {
-						t1.left = t2;
-						t2.right = t1;
-						match = true;
-						break;
-					}
-					adjustable.rotateRight();
-				}
-				if (match) {
-					t1.adjusted = true;
-					t2.adjusted = true;
-					System.out.println("rotated " + adjustable + " to match with " + (adjustable == t1 ? t2 : t1));
-					continue;
-				}
-				
-				// Flip vertical (top with bottom)
-				for (int k = 0; k < 2; k++) {
-					if (t1.u == t2.d) {
-						t1.up = t2;
-						t2.down = t1;
-						match = true;
-						break;
-					} else if (t1.d == t2.u) {
-						t1.down = t2;
-						t2.up = t1;
-						match = true;
-						break;
-					} else if (t1.r == t2.l) {
-						t1.right = t2;
-						t2.left = t1;
-						match = true;
-						break;
-					} else if (t1.l == t2.r) {
-						t1.left = t2;
-						t2.right = t1;
-						match = true;
-						break;
-					}
-					adjustable.flipVertical();
-				}
-				if (match) {
-					t1.adjusted = true;
-					t2.adjusted = true;
-					System.out.println("flipped vert " + adjustable + " to match with " + (adjustable == t1 ? t2 : t1));
-					continue;
-				}
-				
-				// Flip horizontal (left with right)
-				for (int k = 0; k < 2; k++) {
-					if (t1.u == t2.d) {
-						t1.up = t2;
-						t2.down = t1;
-						match = true;
-						break;
-					} else if (t1.d == t2.u) {
-						t1.down = t2;
-						t2.up = t1;
-						match = true;
-						break;
-					} else if (t1.r == t2.l) {
-						t1.right = t2;
-						t2.left = t1;
-						match = true;
-						break;
-					} else if (t1.l == t2.r) {
-						t1.left = t2;
-						t2.right = t1;
-						match = true;
-						break;
-					}
-					adjustable.flipHorizontal();
-				}
-				if (match) {
-					t1.adjusted = true;
-					t2.adjusted = true;
-					System.out.println("flipped hor " + adjustable + " to match with " + (adjustable == t1 ? t2 : t1));
-					continue;
-				}
+				tile = tile.flipped();
 			}
 		}
+		tiles = possibleTiles;
+		
 	}
 	
-	static String toPaddedBinaryString(int i, int length) {
-		StringBuilder sb = new StringBuilder();
-		String binStr = Integer.toBinaryString(i);
-		for (int n = binStr.length(); n < length; n++) sb.append('0');
-		sb.append(binStr);
-		return sb.toString();
+	private boolean matchBorders(int i, int j, Set<Integer> alreadyChoosen) {
+		Tile up = i > 0 ? tileArrangement[i-1][j] : null;
+		Tile left = j > 0 ? tileArrangement[i][j-1] : null;
+		int nextI = ((i*tileArrangement.length)+j+1) / tileArrangement.length;
+		int nextJ = ((i*tileArrangement.length)+j+1) % tileArrangement.length;
+		for (Tile tile : tiles) {
+			if (!alreadyChoosen.contains(tile.id) && (up == null || up.canBeBelow(tile)) && (left == null || left.canBeRight(tile))) {
+				alreadyChoosen.add(tile.id);
+				tileArrangement[i][j] = tile;
+				if (i == tileArrangement.length-1 && j == tileArrangement.length-1) {
+					return true;
+				}
+				if (matchBorders(nextI, nextJ, alreadyChoosen)) {
+					return true;
+				}
+				alreadyChoosen.remove(tile.id);
+			}
+		}
+		return false;
 	}
 	
 	private void part1() {
-		long product = 1;
-		for (Tile t : tiles) {
-			System.out.println(t + " -> " + t.left + " " + t.right + " " + t.up + " " + t.down);
-			/*
-			if ((t.left == null && t.up == null) || (t.up == null && t.right == null) ||
-			    (t.right == null && t.down == null) || (t.down == null && t.left == null)) {
-				product *= t.id;
-				System.out.println(t.id);
-			}*/
-		}
-		System.out.println(product);
+		matchBorders(0,0, new HashSet<>());
+		System.out.println(((long) tileArrangement[0][0].id) *
+				           ((long) tileArrangement[0][tileArrangement.length-1].id) *
+				           ((long) tileArrangement[tileArrangement.length-1][0].id) *
+				           ((long) tileArrangement[tileArrangement.length-1][tileArrangement.length-1].id));
 	}
 	
 	private void part2() {
-		
+		// Create a big tile of all aligned tiles
+		char[][] bigGrid = new char[tileArrangement.length*(EDGE_LENGTH-2)][tileArrangement.length*(EDGE_LENGTH-2)];
+		for (int i = 0; i < tileArrangement.length; i++) {
+			for (int j = 0; j < tileArrangement.length; j++) {
+				for (int row = 1; row < EDGE_LENGTH-1; row++) {
+					for (int col = 1; col < EDGE_LENGTH-1; col++) {
+						bigGrid[i*(EDGE_LENGTH-2) + row - 1][j*(EDGE_LENGTH-2) + col - 1] = tileArrangement[i][j].grid[row][col];
+					}
+				}
+			}
+		}
+		Tile bigTile = new Tile(0, bigGrid);
+		Tile monsterTile = new Tile(0, bigGrid.clone());
+		for (int n1 = 0; n1 < 2; n1++) {
+			for (int n2 = 0; n2 < 4; n2++) {
+				// Check for pattern
+				for (int i = 0; i < bigTile.grid.length-2; i++) {
+					for (int j = 18; j < bigTile.grid.length-1; j++) {
+						if (bigTile.grid[i][j] == '#' && bigTile.grid[i+1][j-18] == '#' && bigTile.grid[i+1][j-13] == '#' &&
+							bigTile.grid[i+1][j-12] == '#' && bigTile.grid[i+1][j-6] == '#' && bigTile.grid[i+1][j-7] == '#' &&
+							bigTile.grid[i+1][j-1] == '#' && bigTile.grid[i+1][j] == '#' && bigTile.grid[i+1][j+1] == '#' &&
+							bigTile.grid[i+2][j-17] == '#' && bigTile.grid[i+2][j-14] == '#' && bigTile.grid[i+2][j-11] == '#' &&
+							bigTile.grid[i+2][j-8] == '#' && bigTile.grid[i+2][j-5] == '#' && bigTile.grid[i+2][j-2] == '#') {
+							monsterTile.grid[i][j] = 'O';
+							monsterTile.grid[i+1][j-18] = 'O';
+							monsterTile.grid[i+1][j-13] = 'O';
+							monsterTile.grid[i+1][j-12] = 'O';
+							monsterTile.grid[i+1][j-6] = 'O';
+							monsterTile.grid[i+1][j-7] = 'O';
+							monsterTile.grid[i+1][j-1] = 'O';
+							monsterTile.grid[i+1][j] = 'O';
+							monsterTile.grid[i+1][j+1] = 'O';
+							monsterTile.grid[i+2][j-17] = 'O';
+							monsterTile.grid[i+2][j-14] = 'O';
+							monsterTile.grid[i+2][j-11] = 'O';
+							monsterTile.grid[i+2][j-8] = 'O';
+							monsterTile.grid[i+2][j-5] = 'O';
+							monsterTile.grid[i+2][j-2] = 'O';
+						}
+					}
+				}
+				bigTile = bigTile.rotated();
+				monsterTile = monsterTile.rotated();
+			}
+			monsterTile = monsterTile.flipped();
+		}
+		int count = 0;
+		for (int i = 0; i < bigGrid.length; i++) {
+			for (int j = 0; j < bigGrid.length; j++) {
+				if (monsterTile.grid[i][j] == '#') count++;
+			}
+		}
+		System.out.println(count);
 	}
 	
 	public static void main(String[] args) throws Exception {
@@ -200,68 +134,46 @@ public class Day20 {
 
 class Tile {
 	int id;
-	int l, u, r, d, invL, invU, invR, invD;
-	Tile right, left, up, down;
-	char[][] map;
-	boolean adjusted = false;
+	char[][] grid;
 	
 	Tile(int id, char[][] grid) {
 		this.id = id;
-		
-		int lastToggled = 1 << (grid.length-1);
+		this.grid = grid;
+	}
+	
+	public Tile rotated() {
+		char[][] newGrid = new char[grid.length][grid.length];
 		for (int i = 0; i < grid.length; i++) {
-			if (grid[i][0] == '#') {
-				l += (1 << i);
-				invL += lastToggled >> i;
-			}
-			if (grid[i][grid.length-1] == '#') {
-				r += (1 << i);
-				invR += lastToggled >> i;
-			}
-			if (grid[0][i] == '#') {
-				u += (1 << i);
-				invU += lastToggled >> i;
-			}
-			if (grid[grid.length-1][i] == '#') {
-				d += (1 << i);
-				invD += lastToggled >> i;
+			for (int j = 0; j < grid.length; j++) {
+				newGrid[i][j] = grid[j][grid.length-1-i];
 			}
 		}
-		
-		map = new char[grid.length-2][grid.length-2];
-		for (int i = 1; i < grid.length-1; i++) {
-			for (int j = 1; j < grid.length-1; j++) {
-				map[i-1][j-1] = grid[i][j];
+		return new Tile(id, newGrid);
+	}
+	
+	public Tile flipped() {
+		char[][] newGrid = new char[grid.length][grid.length];
+		for (int i = 0; i < grid.length; i++) {
+			for (int j = 0; j < grid.length; j++) {
+				newGrid[i][j] = grid[i][grid.length-1-j];
+				newGrid[i][grid.length-1-j] = grid[i][j];
 			}
 		}
+		return new Tile(id, newGrid);
 	}
 	
-	public void rotateRight() {
-		int tmpL = l, tmpInvL = invL;
-		l = d;
-		invL = invD;
-		d = invR;
-		invD = r;
-		r = u;
-		invR = invU;
-		u = tmpInvL;
-		invU = tmpL;
+	public boolean canBeBelow(Tile other) {
+		for (int i = 0; i < grid.length; i++) {
+			if (grid[grid.length-1][i] != other.grid[0][i]) return false;
+		}
+		return true;
 	}
 	
-	public void flipVertical() {
-		int tmpU = u, tmpInvU = u;
-		u = d;
-		invU = invD;
-		d = tmpU;
-		invD = tmpInvU;
-	}
-	
-	public void flipHorizontal() {
-		int tmpL = l, tmpInvL = invL;
-		l = r;
-		invL = invR;
-		r = tmpL;
-		invR = tmpInvL;
+	public boolean canBeRight(Tile other) {
+		for (int i = 0; i < grid.length; i++) {
+			if (grid[i][grid.length-1] != other.grid[i][0]) return false;
+		}
+		return true;
 	}
 	
 	public String toString() {
