@@ -10,7 +10,7 @@
 #include <regex>
 #include "util.h"
 using std::vector; using std::cout; using std::endl;
-using std::string; using std::stoi;
+using std::string; using std::stoi; using std::regex;
 
 vector<int> nums;
 

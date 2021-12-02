@@ -1,4 +1,7 @@
 #include <math.h>
+#include <string>
+#include <vector>
+#include <regex>
 
 #define PI 3.14159265
 
@@ -59,4 +62,24 @@ namespace std {
         return double_hasher(obj.x) ^ double_hasher(obj.y);
       }
     };
+}
+
+std::vector<std::string> split(const std::string& str, char delim) {
+  std::stringstream strStream(str);
+  std::string value;
+  std::vector<std::string> splitted;
+  while (std::getline(strStream, value, delim)) {
+    splitted.push_back(value);
+  }
+  return splitted;
+}
+
+void removeChar(std::string& str, char c) {
+  str.erase(remove(str.begin(), str.end(), c), str.end());
+}
+
+std::smatch match(const std::regex& pattern, const std::string& str) {
+  std::smatch sm;
+  std::regex_match(str, sm, pattern);
+  return sm;
 }
