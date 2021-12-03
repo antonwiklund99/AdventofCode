@@ -1,45 +1,55 @@
 #include <vector>
 #include <string>
-#include <map>
-#include <set>
 #include <iostream>
 #include <fstream>
 #include <algorithm>
-#include <unordered_set>
-#include <unordered_map>
-#include <regex>
 #include "util.h"
-using std::vector; using std::cout; using std::endl;
-using std::string; using std::stoi; using std::regex;
+using namespace std;
 
 vector<int> nums;
-vector<string> lines;
-
-/*
-string line = "1-3 a: abcde";
-regex pattern = regex ("(\\d+)-(\\d+) ([a-z]): ([a-z]+)");
-std::smatch sm = match(pattern, line);
-cout << sm[1] << " " << sm[2] << " " << sm[3] << " " << sm[4] << endl;
-*/
+int bits;
 
 void part1() {
-  int x = 0;
-  for (int i = 0; i < nums.size(); i++) {
-
+  int res = 0;
+  for (int i = 1 << (bits-1); i != 0; i >>= 1) {
+    int ones = count_if(nums.begin(), nums.end(), [i](int n) { return n & i; });
+    if (ones > nums.size()/2) res += i;
   }
-  cout << x << endl;
+  cout << res*(res^((1 << bits) - 1)) << endl;
 }
 
 void part2() {
-
+  vector<int> ox(nums.size());
+  vector<int> co(nums.size());
+  copy(nums.begin(), nums.end(), ox.begin());
+  copy(nums.begin(), nums.end(), co.begin());
+  int bit = 1 << (bits-1);
+  while (ox.size() != 1) {
+    int ones = count_if(ox.begin(), ox.end(), [bit](int n) { return n & bit; });
+    bool keepOnes = ones >= (ox.size() - ones);
+    ox.erase(remove_if(ox.begin(), ox.end(), [bit,keepOnes](int n) {
+      return keepOnes ^ (bool) (n & bit);
+    }), ox.end());
+    bit >>= 1;
+  }
+  bit = 1 << (bits-1);
+  while (co.size() != 1) {
+    int ones = count_if(co.begin(), co.end(), [bit](int n) { return n & bit; });
+    bool keepOnes= ones < (co.size() - ones);
+    co.erase(remove_if(co.begin(), co.end(), [bit,keepOnes](int n) {
+      return keepOnes ^ (bool) (n & bit);
+    }), co.end());
+    bit >>= 1;
+  }
+  cout << ox[0]*co[0] << endl;
 }
 
 int main() {
-  std::fstream data_file ("data/data3.txt", std::ios::in);
+  fstream data_file ("data/data3.txt", ios::in);
   string line;
   while (getline(data_file, line)) {
-    nums.push_back(stoi(line));
-    lines.push_back(line);
+    bits = line.size();
+    nums.push_back(stoi(line,0,2));
   }
   data_file.close();
 
