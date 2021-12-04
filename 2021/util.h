@@ -78,6 +78,12 @@ void removeChar(std::string& str, char c) {
   str.erase(remove(str.begin(), str.end(), c), str.end());
 }
 
+void removeWhitespace(std::string& str) {
+  removeChar(str, ' ');
+  removeChar(str, '\n');
+  removeChar(str, '\t');
+}
+
 std::smatch match(const std::regex& pattern, const std::string& str) {
   std::smatch sm;
   std::regex_match(str, sm, pattern);
