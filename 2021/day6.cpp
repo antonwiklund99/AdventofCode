@@ -1,42 +1,52 @@
 #include <vector>
 #include <string>
-#include <map>
-#include <set>
 #include <iostream>
 #include <fstream>
-#include <algorithm>
-#include <unordered_set>
-#include <unordered_map>
-#include <regex>
-#include <cmath>
 #include "util.h"
 using namespace std;
 
-vector<int> nums;
-vector<string> lines;
+long occ1[9]{0};
+long occ2[9]{0};
 
 void part1() {
-  int res = 0;
-  for (int i = 0; i < nums.size(); i++) {
-
+  for (int n = 0; n < 80; n++) {
+    long zeroes = occ1[0];
+    for (int i = 0; i < 8; i++) {
+      occ1[i] = occ1[i+1];
+    }
+    occ1[6] += zeroes;
+    occ1[8] = zeroes;
+  }
+  long res = 0;
+  for (int i = 0; i < 9; i++) {
+    res += occ1[i];
   }
   cout << res << endl;
 }
 
 void part2() {
-
+  for (int n = 0; n < 256; n++) {
+    long zeroes = occ2[0];
+    for (int i = 0; i < 8; i++) {
+      occ2[i] = occ2[i+1];
+    }
+    occ2[6] += zeroes;
+    occ2[8] = zeroes;
+  }
+  long res = 0;
+  for (int i = 0; i < 9; i++) {
+    res += occ2[i];
+  }
+  cout << res << endl;
 }
 
-/*
-regex pattern = regex ("(\\d+)-(\\d+) ([a-z]): ([a-z]+)");
-std::smatch sm = match(pattern, line);
-*/
 int main() {
   std::fstream data_file ("data/data6.txt", std::ios::in);
   string line;
-  while (getline(data_file, line)) {
-    nums.push_back(stoi(line));
-    lines.push_back(line);
+  getline(data_file, line);
+  for (auto s : split(line, ',')) {
+    occ1[stoi(s)]++;
+    occ2[stoi(s)]++;
   }
   data_file.close();
 
