@@ -1,49 +1,110 @@
 #include <vector>
 #include <string>
-#include <map>
-#include <set>
 #include <iostream>
 #include <fstream>
 #include <algorithm>
-#include <unordered_set>
-#include <unordered_map>
-#include <regex>
-#include <cmath>
-#include <queue>
+#include <stack>
 #include "util.h"
 using namespace std;
 
 vector<string> lines;
-vector<int> nums;
 
 void part1() {
   int res = 0;
-  for (int i = 0; i < nums.size(); i++) {
-
+  for (int i = 0; i < lines.size(); i++) {
+    stack<char> s;
+    for (char c : lines[i]) {
+      if (c == '(') s.push(c);
+      else if (c == '[') s.push(c);
+      else if (c == '{') s.push(c);
+      else if (c == '<') s.push(c);
+      else if (c == ')') {
+        if (s.top() != '(') {
+          res += 3;
+          break;
+        }
+        s.pop();
+      } else if (c == ']') {
+        if (s.top() != '[') {
+          res += 57;
+          break;
+        }
+        s.pop();
+      } else if (c == '}') {
+        if (s.top() != '{') {
+          res += 1197;
+          break;
+        }
+        s.pop();
+      } else if (c == '>') {
+        if (s.top() != '<') {
+          res += 25137;
+          break;
+        }
+        s.pop();
+      }
+    }
   }
   cout << res << endl;
 }
 
 void part2() {
-
+  vector<long> scores;
+  for (int i = 0; i < lines.size(); i++) {
+    stack<char> s;
+    bool err = false;
+    for (char c : lines[i]) {
+      if (c == '(') s.push(c);
+      else if (c == '[') s.push(c);
+      else if (c == '{') s.push(c);
+      else if (c == '<') s.push(c);
+      else if (c == ')') {
+        if (s.top() != '(') {
+          err = true;
+          break;
+        }
+        s.pop();
+      } else if (c == '}') {
+        if (s.top() != '{') {
+          err = true;
+          break;
+        }
+        s.pop();
+      } else if (c == ']') {
+        if (s.top() != '[') {
+          err = true;
+          break;
+        }
+        s.pop();
+      } else if (c == '>') {
+        if (s.top() != '<') {
+          err = true;
+          break;
+        }
+        s.pop();
+      }
+    }
+    if (!err) {
+      long score = 0;
+      while (s.size() != 0) {
+        score *= 5;
+        if (s.top() == '(') score += 1;
+        else if (s.top() == '[') score += 2;
+        else if (s.top() == '{') score += 3;
+        else if (s.top() == '<') score += 4;
+        s.pop();
+      }
+      scores.push_back(score);
+    }
+  }
+  sort(scores.begin(),scores.end());
+  cout << scores[scores.size()/2] << endl;
 }
-
-/*
-regex pattern = regex ("(\\d+)-(\\d+) ([a-z]): ([a-z]+)");
-std::smatch sm = match(pattern, line);
-*/
 
 int main() {
   std::fstream data_file ("data/data10.txt", std::ios::in);
   string line;
-  /*
-  getline(data_file, line);
-  for (auto s : split(line,',')) {
-    nums.push_back(stoi(s));
-  }
-  */
   while (getline(data_file, line)) {
-    nums.push_back(stoi(line));
     lines.push_back(line);
   }
   data_file.close();
