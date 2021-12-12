@@ -1,51 +1,70 @@
 #include <vector>
 #include <string>
-#include <map>
-#include <set>
 #include <iostream>
 #include <fstream>
-#include <algorithm>
 #include <unordered_set>
 #include <unordered_map>
-#include <regex>
-#include <cmath>
-#include <queue>
-#include <stack>
+#include <cctype>
 #include "util.h"
 using namespace std;
 
-vector<int> nums;
-vector<string> lines;
+unordered_map<string,vector<string>> edges;
+
+bool isSmall(const string& cave) {
+  return islower(cave[0]);
+}
+
+int pathsToEnd1(const string& from, unordered_set<string>& smallVisited) {
+  if (from == "end") {
+    return 1;
+  }
+  int paths = 0;
+  for (auto neighbour : edges[from]) {
+    if (smallVisited.find(neighbour) == smallVisited.end()) {
+      if (isSmall(neighbour)) smallVisited.insert(neighbour);
+      paths += pathsToEnd1(neighbour, smallVisited);
+      if (isSmall(neighbour)) smallVisited.erase(neighbour);
+    }
+  }
+  return paths;
+}
+
+int pathsToEnd2(const string& from, unordered_set<string>& smallVisited, bool usedTwice) {
+  if (from == "end") {
+    return 1;
+  }
+  int paths = 0;
+  for (auto neighbour : edges[from]) {
+    if (smallVisited.find(neighbour) == smallVisited.end()) {
+      if (isSmall(neighbour)) smallVisited.insert(neighbour);
+      paths += pathsToEnd2(neighbour, smallVisited, usedTwice);
+      if (isSmall(neighbour)) smallVisited.erase(neighbour);
+    } else if (!usedTwice && neighbour != "start") {
+      paths += pathsToEnd2(neighbour, smallVisited, true);
+    }
+  }
+  return paths;
+}
 
 void part1() {
   int res = 0;
-  for (int i = 0; i < lines.size(); i++) {
-
-  }
-  cout << res << endl;
+  unordered_set<string> smallVisited{"start"};
+  cout << pathsToEnd1("start", smallVisited) << endl;
 }
 
 void part2() {
-
+  int res = 0;
+  unordered_set<string> smallVisited{"start"};
+  cout << pathsToEnd2("start", smallVisited, false) << endl;
 }
-
-/*
-regex pattern = regex ("(\\d+)-(\\d+) ([a-z]): ([a-z]+)");
-std::smatch sm = match(pattern, line);
-*/
 
 int main() {
   std::fstream data_file ("data/data12.txt", std::ios::in);
   string line;
-  /*
-  getline(data_file, line);
-  for (auto s : split(line,',')) {
-    nums.push_back(stoi(s));
-  }
-  */
   while (getline(data_file, line)) {
-    nums.push_back(stoi(line));
-    lines.push_back(line);
+    auto splitted = split(line,'-');
+    edges[splitted[0]].push_back(splitted[1]);
+    edges[splitted[1]].push_back(splitted[0]);
   }
   data_file.close();
 
