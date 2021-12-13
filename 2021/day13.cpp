@@ -1,17 +1,8 @@
 #include <vector>
 #include <string>
-#include <map>
-#include <set>
 #include <iostream>
 #include <fstream>
-#include <algorithm>
-#include <unordered_set>
-#include <unordered_map>
-#include <regex>
 #include <cmath>
-#include <cctype>
-#include <queue>
-#include <stack>
 #include "util.h"
 using namespace std;
 
@@ -33,7 +24,7 @@ void part1() {
   pair<char,int> fold = folds[0];
   if (fold.first == 'x') {
     for (int r = 0; r <= y; r++) {
-      for (int i = 1; i <= min(x - fold.second, fold.second); i++) {
+      for (int i = 1; i <= x - fold.second; i++) {
         int rx = fold.second + i;
         int lx = fold.second - i;
         grid[r][lx] = grid[r][lx] || grid[r][rx];
@@ -42,7 +33,7 @@ void part1() {
     x = fold.second - 1;
   } else {
     for (int c = 0; c <= x; c++) {
-      for (int i = 1; i <= min(y - fold.second, fold.second); i++) {
+      for (int i = 1; i <= y - fold.second; i++) {
         int dy = fold.second + i;
         int uy = fold.second - i;
         grid[uy][c] = grid[uy][c] || grid[dy][c];
@@ -73,7 +64,7 @@ void part2() {
   for (auto fold : folds) {
     if (fold.first == 'x') {
       for (int r = 0; r <= y; r++) {
-        for (int i = 1; i <= min(x - fold.second, fold.second); i++) {
+        for (int i = 1; i <= x - fold.second; i++) {
           int rx = fold.second + i;
           int lx = fold.second - i;
           grid[r][lx] = grid[r][lx] || grid[r][rx];
@@ -82,7 +73,7 @@ void part2() {
       x = fold.second - 1;
     } else {
       for (int c = 0; c <= x; c++) {
-        for (int i = 1; i <= min(y - fold.second, fold.second); i++) {
+        for (int i = 1; i <= y - fold.second; i++) {
           int dy = fold.second + i;
           int uy = fold.second - i;
           grid[uy][c] = grid[uy][c] || grid[dy][c];

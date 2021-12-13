@@ -68,7 +68,7 @@ int main() {
     std::smatch sm = match(pattern, line);
     Point2D start = Point2D(stoi(sm[1]),stoi(sm[2]));
     Point2D end = Point2D(stoi(sm[3]),stoi(sm[4]));
-    edges.push_back(pair(start,end));
+    edges.push_back(pair<Point2D,Point2D>(start,end));
   }
   data_file.close();
 
