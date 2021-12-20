@@ -64,6 +64,81 @@ namespace std {
     };
 }
 
+class Point3D {
+  public:
+    int x,y,z;
+
+    Point3D(int x, int y, int z) {
+      this->x = x;
+      this->y = y;
+      this->z = z;
+    }
+
+    Point3D subbed(const Point3D& other) const {
+      return Point3D(x - other.x, y - other.y, z - other.z);
+    }
+
+    Point3D added(const Point3D& other) const {
+      return Point3D(x + other.x, y + other.y, z + other.z);
+    }
+
+    Point3D multiplied(const Point3D& other) const {
+      return Point3D(x*other.x, y*other.y, z*other.z);
+    }
+
+    void rotate90x() {
+      int tmp = x;
+      x = -y;
+      y = tmp;
+    }
+
+    void rotate90x(int times) {
+      for (times; times > 0; times--) rotate90x();
+    }
+
+    void rotate90y() {
+      int tmp = x;
+      x = z;
+      z = -tmp;
+    }
+
+    void rotate90y(int times) {
+      for (times; times > 0; times--) rotate90y();
+    }
+
+    void rotate90z() {
+      int tmp = y;
+      y = -z;
+      z = tmp;
+    }
+
+    void rotate90z(int times) {
+      for (times; times > 0; times--) rotate90z();
+    }
+
+    bool operator ==(const Point3D& other) const {
+      return x == other.x && y == other.y && z == other.z;
+    }
+
+    bool operator !=(const Point3D& other) const {
+      return other.x != x || other.y != y || other.z != z;
+    }
+};
+
+std::ostream& operator <<(std::ostream& os, const Point3D& p) {
+  return os << "(" << p.x << "," << p.y << "," << p.z << ")";
+}
+
+namespace std {
+  template<>
+  struct hash<Point3D> {
+      size_t operator()(const Point3D& obj) const {
+        std::hash<int> int_hasher;
+        return int_hasher(obj.x) ^ int_hasher(obj.y) ^ int_hasher(obj.z);
+      }
+    };
+}
+
 std::vector<std::string> split(const std::string& str, char delim) {
   std::stringstream strStream(str);
   std::string value;
