@@ -1,5 +1,4 @@
 #!/usr/bin/pypy3
-
 from functools import lru_cache
 
 a = []
