@@ -1,5 +1,6 @@
 #!/usr/bin/pypy3
 import itertools
+from heapq import heappop, heappush, heapify
 from collections import deque
 from math import floor, ceil
 import re
