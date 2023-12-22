@@ -38,7 +38,7 @@ while True:
   # It takes exactly 131 steps between a tile in one grid to the next
   # 26501365 % 131 = 65
   # So starting at step 65 and looking at every 131 steps if we find a cycle we can use that to calculate to the end
-  # The function is a 2nd degree polynomial so we are looking for a constant 2nd derivative
+  # The function looks like a 2nd degree polynomial so we are looking for a constant 2nd derivative
   if (steps-65) % 131 == 0: 
     sx = (steps-65) // 131
     old_y = y
