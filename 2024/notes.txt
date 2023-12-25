@@ -14,5 +14,6 @@
     for c in nx.connected_components(g):
     res *= len(c)
     print(res)
-* polygon area funktion (2023 day18)
+* polygon area funktion (2023 day10 & day18)
 * skriv lite utils funktioner typ index_where(list, func)
+* funktion för linjer

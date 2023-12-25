@@ -1,9 +1,12 @@
 #!/usr/bin/pypy3
 import itertools
-from heapq import heappop, heappush, heapify
-from collections import deque
-from math import floor, ceil
+import functools
 import re
+#import z3
+#import networkx as nx
+from heapq import heappop, heappush, heapify
+from collections import deque, defaultdict
+from math import floor, ceil, log2, log10
 
 res = 0
 res2 = 0
