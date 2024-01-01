@@ -1,0 +1,6 @@
+z3
+z3-solver
+importlib-resources
+networkx
+numpy
+matplotlib
