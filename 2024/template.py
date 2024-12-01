@@ -2,6 +2,7 @@
 import itertools
 import functools
 import re
+import math
 #import z3
 #import networkx as nx
 from heapq import heappop, heappush, heapify
@@ -21,11 +22,8 @@ with open("data/dataXX", "r") as f:
     #a.append(int(l.strip()))
     a.append(l.strip())
 
-#for x in a:
-#  res += a
-
-#for i in range(len(a)):
-#  res += a[i]
+# for (i,e) in enumerate(a):
+#     res += e
 
 #for l in a:
 #  m = re.search(r"(\d+)-(\d+) (\w)\: (\w+)",l)
