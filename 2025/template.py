@@ -8,7 +8,7 @@ import math
 from heapq import heappop, heappush, heapify
 from collections import deque, defaultdict
 from math import floor, ceil, log2, log10
-from utils import index_where, is_number
+from utils import index_where, dist
 
 res = 0
 res2 = 0
