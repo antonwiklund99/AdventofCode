@@ -5,6 +5,7 @@ import re
 import math
 #import z3
 #import networkx as nx
+#from shapely.geometry import Polygon, LineString
 from heapq import heappop, heappush, heapify
 from collections import deque, defaultdict
 from math import floor, ceil, log2, log10
