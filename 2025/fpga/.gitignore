@@ -1,0 +1,10 @@
+.Xil
+_build
+*.jou
+*.log
+*.str
+vivado/build
+clockInfo.txt
+bin/generate.exe
+bin/generate.bc
+src/generated
