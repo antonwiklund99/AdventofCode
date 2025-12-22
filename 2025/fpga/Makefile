@@ -13,7 +13,9 @@ fpga_program: fpga_build
 
 clean:
 	dune clean
-	rm src/generated/top.v
+	rm -f src/generated/top.v
+
+clean_vivado:
 	rm -rf vivado/build/*
 
 .PHONY: build fpga_build fpga_program clean
