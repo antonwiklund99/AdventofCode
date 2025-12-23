@@ -21,8 +21,8 @@ def rx(n):
             print(f"ERROR NOT SEQUENTIAL {i}: {prev} -> {d}")
         prev = d
 
-t0 = threading.Thread(target=tx, args=(3000,))
-t1 = threading.Thread(target=rx, args=(3000,))
+t0 = threading.Thread(target=tx, args=(500,))
+t1 = threading.Thread(target=rx, args=(500,))
 t0.start()
 t1.start()
 

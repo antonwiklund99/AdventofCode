@@ -152,7 +152,7 @@ module Make (Config : sig
       let tx_cnt = Always.Variable.reg ~enable:Signal.vdd spec ~width:(num_bits_to_represent(cycles_per_baud - 1)) in
       let tx_byte = Always.Variable.reg ~enable:Signal.vdd spec ~width:8 in
       let tx_tick = Always.Variable.reg ~enable:Signal.vdd spec ~width:1 in
-      let uart_tx = Always.Variable.reg ~enable:Signal.vdd spec ~width:1 in
+      let uart_tx = Always.Variable.reg ~enable:Signal.vdd spec ~clear_to:vdd ~width:1 in
       Always.(compile [
         if_ (tx_cnt.value >=:. cycles_per_baud - 1) [
           tx_cnt <--. 0;
