@@ -2,7 +2,6 @@ open! Core
 open! Hardcaml
 open! Signal
 
-(* TODO: EOF *)
 let shift_in ~clock ~clear ~n ?(ready = vdd) (signal : _ With_valid.t) =
   let spec = Reg_spec.create ~clock ~clear () in
   let valid_in = ready &: signal.valid in
@@ -18,6 +17,32 @@ let shift_in ~clock ~clear ~n ?(ready = vdd) (signal : _ With_valid.t) =
   in
   let valid = reg spec (valid_in &: (counter ==:. n - 1)) in
   { With_valid.valid; value = shreg }
+;;
+
+let shift_out ~clock ~clear ~send ~ready bytes =
+  let spec = Reg_spec.create ~clock ~clear () in
+  let n = (width bytes) / 8 in
+  let send_d = reg spec send in
+  let sending = Always.Variable.reg ~enable:vdd spec ~width:1 in
+  let data = Always.Variable.reg ~enable:vdd spec ~width:(width bytes) in
+  let counter = Always.Variable.reg ~enable:vdd spec ~width:(num_bits_to_represent n) in
+  Always.(compile [
+    if_ (~:(sending.value)) [
+      data <-- bytes;
+      when_ (~:(send_d) &: send) [
+        sending <-- vdd;
+      ]
+    ] [
+      when_ (ready) [
+        data <-- (zero 8) @: (drop_bottom ~width:8 data.value);
+        counter <-- mod_counter ~max:(n-1) (counter.value);
+        when_ (counter.value ==:. n - 1) [
+          sending <-- gnd;
+        ]
+      ]
+    ];
+  ]);
+  { With_valid.valid=sending.value; value=(sel_bottom ~width:8 data.value) }
 ;;
 
 module I = struct
