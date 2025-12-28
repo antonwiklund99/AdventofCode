@@ -38,6 +38,7 @@ while read -r waiver; do
 done < $VIVADO_DIR/waiver.txt
 
 if [ -n "$WARNINGS" ]; then
+    echo $WARNINGS
     exit 1
 fi
 

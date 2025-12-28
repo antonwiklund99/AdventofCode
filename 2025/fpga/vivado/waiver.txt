@@ -1,1 +1,1 @@
-Synth 8-7080
+WARNING: \[Synth 8-7080\] Parallel synthesis criteria is not met

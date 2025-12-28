@@ -36,9 +36,11 @@ module Make (Solver : Solver.Solver) = struct
   let create scope ({clock; btn; uart_rx} : _ I.t) : _ O.t =
     let open Signal in
 
-    let sync_input x = pipeline (Reg_spec.create ~clock ()) ~n:3 x in
+    let spec = Reg_spec.create ~clock () in
+    let sync_input x = pipeline spec ~n:3 x in
     let clear = sync_input btn in
     let uart_rx_sync = sync_input uart_rx in
+    let initialized = Signal.reg_fb spec ~enable:vdd ~width:1 ~f:(fun x -> x |: clear) in
 
     let uart_rx_ready = wire 1 in
     let uart_tx_data = Byte_with_valid.Of_signal.wires () in 
@@ -63,6 +65,6 @@ module Make (Solver : Solver.Solver) = struct
     uart_rx_ready <-- solver_o.uart_rx_ready;
     Byte_with_valid.Of_signal.assign uart_tx_data solver_o.uart_tx_data;
 
-    {uart_tx; leds=solver_o.leds}
+    {uart_tx=(uart_tx |: ~:(initialized)); leds=solver_o.leds}
   ;;
 end
