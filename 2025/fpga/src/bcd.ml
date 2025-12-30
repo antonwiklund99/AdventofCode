@@ -38,3 +38,20 @@ let bin_2_bcd ~clock ~clear ?(ready = vdd) (x : _ With_valid.t) =
   let ndigits = (of_int_trunc ~width:(num_bits_to_represent num_digits) num_digits) -: (drop_bottom ~width:2 (leading_zeros bcd)) in (* max_digits - nzeros/4 *)
   { Bcd_num.value=bcd; ndigits; valid; }
 ;;
+
+let char_2_digit c = uresize ~width:4 (c -:. (int_of_char '0'))
+
+let bcd_2_bin ~clock ~clear ~valid ?(ready = vdd) digits =
+  (* TODO: improve *)
+  let spec = Reg_spec.create ~clock ~clear () in
+  let max_value = (Int.pow 10 (List.length digits)) - 1 in
+  let max_width = num_bits_to_represent max_value in
+  let value = reg spec
+                ~enable:(valid &: ready)
+                (tree ~arity:4
+                  (List.mapi digits ~f:(fun i x -> let m = Signal.of_int_trunc ~width:max_width (Int.pow 10 i) in 
+                                                   x *: m))
+                  ~f:(reduce ~f:(+:)))
+  in
+  let valid = reg spec (valid &: ready) in
+  { With_valid.valid; value }

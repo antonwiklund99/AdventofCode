@@ -46,10 +46,19 @@ let day2_rtl_command =
       fun () -> generate_top_rtl (module Aoc_2025.Day2)]
 ;;
 
+let day3_rtl_command =
+  Command.basic
+    ~summary:"day 3 top"
+    [%map_open.Command
+      let () = return () in
+      fun () -> generate_top_rtl (module Aoc_2025.Day3)]
+;;
+
 let () =
   Command_unix.run
     (Command.group ~summary:"" [ "blinky",    blinky_rtl_command
                                ; "uart-test", uart_test_rtl_command
                                ; "day1",      day1_rtl_command
-                               ; "day2",      day2_rtl_command ])
+                               ; "day2",      day2_rtl_command
+                               ; "day3",      day3_rtl_command ])
 ;;

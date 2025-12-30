@@ -8,13 +8,13 @@ open! Hardcaml_test_harness
 
 module Harness = Cyclesim_harness.Make (Aoc_2025.Solver.I) (Aoc_2025.Solver.O)
 
-let day2_tb file_name (sim : Harness.Sim.t) =
+let day3_tb file_name (sim : Harness.Sim.t) =
   let inputs = Cyclesim.inputs sim in
   let outputs = Cyclesim.outputs sim in
   let cycle ?n () = Cyclesim.cycle ?n sim in
 
-  let input_data = In_channel.read_all file_name in
-  let eof_value = List.init 10 ~f:(fun _ -> 0xFF) in
+  let input_data = In_channel.read_lines file_name in
+  let eof_value = 0xFF in
 
   inputs.uart_tx_ready := Bits.gnd;
   inputs.uart_rx_overflow := Bits.gnd;
@@ -33,16 +33,20 @@ let day2_tb file_name (sim : Harness.Sim.t) =
     done;
     cycle ();
   in
-  let send_num n =
-    let bytes = List.map (List.range 0 5) ~f:(fun i -> (n lsr (8*i)) land 0xFF) in
-    List.iter ~f:send_byte bytes;
+  let rec send_lines = function
+    | [] -> ()
+    | [s] -> String.iter ~f:(fun c -> send_byte (int_of_char c)) s
+    | s::ss -> String.iter ~f:(fun c -> send_byte (int_of_char c)) (s ^ "\n");
+               send_lines ss
   in
-  let range_regex = Re.Pcre.regexp "(\\d+)-(\\d+)" in
-  Re.all range_regex input_data
-  |> List.iter~f:(fun group ->
-      send_num (Re.Group.get group 1 |> int_of_string);
-      send_num (Re.Group.get group 2 |> int_of_string));
-  List.iter ~f:send_byte eof_value;
+  let head = function
+    | [] -> failwith "empty list"
+    | h::_ -> h
+  in
+
+  send_byte (String.length (head input_data));
+  send_lines input_data;
+  send_byte eof_value;
 
   inputs.uart_rx_data.value := Bits.zero 8;
   inputs.uart_rx_data.valid := Bits.gnd;
@@ -57,9 +61,10 @@ let day2_tb file_name (sim : Harness.Sim.t) =
     inputs.uart_tx_ready := Bits.gnd;
     x;
   in
-  let res = Array.of_list (List.map (List.range 0 10) ~f:read_byte) in
-  let part1 = res.(0) + (res.(1) lsl 8) + (res.(2) lsl 16) + (res.(3) lsl 24) + (res.(4) lsl 32) in
-  let part2 = res.(5) + (res.(6) lsl 8) + (res.(7) lsl 16) + (res.(8) lsl 24) + (res.(9) lsl 32) in
+  let res = Array.of_list (List.map (List.range 0 12) ~f:read_byte) in
+  let part1 = res.(0) + (res.(1) lsl 8) + (res.(2) lsl 16) + (res.(3) lsl 24) in
+  let part2 = res.(4) + (res.(5) lsl 8) + (res.(6) lsl 16) + (res.(7) lsl 24) +
+              (res.(8) lsl 32) + (res.(9) lsl 40) + (res.(10) lsl 48) + (res.(11) lsl 56) in
   print_s [%message "Part 1" (part1 : int)];
   print_s [%message "Part 2" (part2 : int)];
   cycle ~n:2 ()
@@ -71,20 +76,18 @@ let waves_config =
 ;;
 
 let%expect_test "Sample test" =
-  Harness.run_advanced ~waves_config ~trace:`Everything ~create:Aoc_2025.Day2.hierarchical
-    (day2_tb "../../../../../../data/sample2");
+  Harness.run_advanced ~create:Aoc_2025.Day3.hierarchical
+    (day3_tb "../../../../../../data/sample3");
   [%expect {|
-    ("Part 1" (part1 1227775554))
-    ("Part 2" (part2 4174379265))
-    Saved waves to /tmp/test_day2_ml_Sample_test.vcd
+    ("Part 1" (part1 357))
+    ("Part 2" (part2 3121910778619))
     |}]
 ;;
 let%expect_test "Real input test" =
-  Harness.run_advanced ~waves_config ~trace:`Everything ~create:Aoc_2025.Day2.hierarchical
-    (day2_tb "../../../../../../data/data2");
+  Harness.run_advanced ~create:Aoc_2025.Day3.hierarchical
+    (day3_tb "../../../../../../data/data3");
   [%expect {|
-    ("Part 1" (part1 35367539282))
-    ("Part 2" (part2 45814076230))
-    Saved waves to /tmp/test_day2_ml_Real_input_test.vcd
+    ("Part 1" (part1 17179))
+    ("Part 2" (part2 170025781683941))
     |}]
 ;;

@@ -3,9 +3,9 @@ open! Hardcaml
 open! Comb
 open! Signal
 
-let tx_fifo_depth = 32
-let rx_fifo_depth = 256
-let xoff_threshold = 200
+let tx_fifo_depth = 16
+let rx_fifo_depth = 128
+let xoff_threshold = 100
 
 module State = struct
   type t =
