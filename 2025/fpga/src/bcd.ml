@@ -39,7 +39,13 @@ let bin_2_bcd ~clock ~clear ?(ready = vdd) (x : _ With_valid.t) =
   { Bcd_num.value=bcd; ndigits; valid; }
 ;;
 
-let char_2_digit c = uresize ~width:4 (c -:. (int_of_char '0'))
+let char_2_digit c = uresize ~width:4 (c -: (Signal.of_char '0'))
+let digit_2_char d = (uresize ~width:8 d) +: (Signal.of_char '0')
+
+let bin_2_str ~clock ~clear x =
+  let bcd = bin_2_bcd ~clock ~clear x in
+  split_lsb ~part_width:4 bcd.value |> List.map ~f:digit_2_char |> concat_msb
+;;
 
 let bcd_2_bin ~clock ~clear ~valid ?(ready = vdd) digits =
   (* TODO: improve *)

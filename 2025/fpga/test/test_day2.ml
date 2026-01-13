@@ -57,11 +57,17 @@ let day2_tb file_name (sim : Harness.Sim.t) =
     inputs.uart_tx_ready := Bits.gnd;
     x;
   in
-  let res = Array.of_list (List.map (List.range 0 10) ~f:read_byte) in
-  let part1 = res.(0) + (res.(1) lsl 8) + (res.(2) lsl 16) + (res.(3) lsl 24) + (res.(4) lsl 32) in
-  let part2 = res.(5) + (res.(6) lsl 8) + (res.(7) lsl 16) + (res.(8) lsl 24) + (res.(9) lsl 32) in
-  print_s [%message "Part 1" (part1 : int)];
-  print_s [%message "Part 2" (part2 : int)];
+  let buffer = Buffer.create 256 in
+  let rec read_loop seen_newline =
+    let c = char_of_int (read_byte ()) in
+    Buffer.add_char buffer c;
+    if c = '\n' && seen_newline then
+      ()
+    else
+      read_loop (seen_newline || (c = '\n'))
+  in
+  read_loop false;
+  print_string (Buffer.contents buffer);
   cycle ~n:2 ()
 ;;
 
@@ -74,8 +80,8 @@ let%expect_test "Sample test" =
   Harness.run_advanced ~waves_config ~trace:`Everything ~create:Aoc_2025.Day2.hierarchical
     (day2_tb "../../../../../../data/sample2");
   [%expect {|
-    ("Part 1" (part1 1227775554))
-    ("Part 2" (part2 4174379265))
+    0001227775554
+    0004174379265
     Saved waves to /tmp/test_day2_ml_Sample_test.vcd
     |}]
 ;;
@@ -83,8 +89,8 @@ let%expect_test "Real input test" =
   Harness.run_advanced ~waves_config ~trace:`Everything ~create:Aoc_2025.Day2.hierarchical
     (day2_tb "../../../../../../data/data2");
   [%expect {|
-    ("Part 1" (part1 35367539282))
-    ("Part 2" (part2 45814076230))
+    0035367539282
+    0045814076230
     Saved waves to /tmp/test_day2_ml_Real_input_test.vcd
     |}]
 ;;

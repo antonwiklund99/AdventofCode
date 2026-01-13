@@ -45,6 +45,14 @@ let shift_out ~clock ~clear ~send ~ready bytes =
   { With_valid.valid=sending.value; value=(sel_bottom ~width:8 data.value) }
 ;;
 
+let shift_out_num_solution ~clock ~clear ~send ~ready res1 res2 =
+  let spec = Reg_spec.create ~clock ~clear () in
+  let res1_str = Bcd.bin_2_str ~clock ~clear ({value=res1; valid=vdd}) in
+  let res2_str = Bcd.bin_2_str ~clock ~clear ({value=res2; valid=vdd}) in
+  let res_str = (Signal.of_char '\n') @: res2_str @: (Signal.of_char '\n') @: res1_str in
+  shift_out ~clock ~clear ~send:(reg spec send) ~ready res_str
+;;
+
 module I = struct
   type 'a t =
     { clock            : 'a

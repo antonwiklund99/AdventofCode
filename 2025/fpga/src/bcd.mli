@@ -16,6 +16,12 @@ val bin_2_bcd
   -> Signal.t With_valid.t
   -> Signal.t Bcd_num.t
 
+val bin_2_str 
+  :  clock:Signal.t
+  -> clear:Signal.t
+  -> Signal.t With_valid.t
+  -> Signal.t
+
 val bcd_2_bin 
   :  clock:Signal.t
   -> clear:Signal.t

@@ -112,7 +112,7 @@ let create scope ({clock; clear; uart_tx_ready; uart_rx_data; uart_rx_overflow} 
             ~enable:(match_any &: match_valid)
             ~f:(fun x -> x +: (uresize ~width:40 match_id)) in
 
-  let uart_tx_data = Solver.shift_out ~clock ~clear ~send:eof_sticky ~ready:uart_tx_ready (res2 @: res1) in
+  let uart_tx_data = Solver.shift_out_num_solution ~clock ~clear ~send:eof_sticky ~ready:uart_tx_ready res1 res2 in
 
   { uart_tx_data=uart_tx_data; uart_rx_ready=uart_rx_ready.value; leds=(clear @: uart_rx_overflow)}
 ;;

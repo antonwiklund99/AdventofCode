@@ -17,6 +17,15 @@ val shift_out
   -> Signal.t
   -> Signal.t Uart.Byte_with_valid.t
 
+val shift_out_num_solution
+  :  clock:Signal.t
+  -> clear:Signal.t
+  -> send:Signal.t
+  -> ready:Signal.t
+  -> Signal.t
+  -> Signal.t
+  -> Signal.t Uart.Byte_with_valid.t
+
 module I : sig
   type 'a t =
     { clock            : 'a

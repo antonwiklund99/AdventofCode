@@ -61,12 +61,17 @@ let day3_tb file_name (sim : Harness.Sim.t) =
     inputs.uart_tx_ready := Bits.gnd;
     x;
   in
-  let res = Array.of_list (List.map (List.range 0 12) ~f:read_byte) in
-  let part1 = res.(0) + (res.(1) lsl 8) + (res.(2) lsl 16) + (res.(3) lsl 24) in
-  let part2 = res.(4) + (res.(5) lsl 8) + (res.(6) lsl 16) + (res.(7) lsl 24) +
-              (res.(8) lsl 32) + (res.(9) lsl 40) + (res.(10) lsl 48) + (res.(11) lsl 56) in
-  print_s [%message "Part 1" (part1 : int)];
-  print_s [%message "Part 2" (part2 : int)];
+  let buffer = Buffer.create 256 in
+  let rec read_loop seen_newline =
+    let c = char_of_int (read_byte ()) in
+    Buffer.add_char buffer c;
+    if c = '\n' && seen_newline then
+      ()
+    else
+      read_loop (seen_newline || (c = '\n'))
+  in
+  read_loop false;
+  print_string (Buffer.contents buffer);
   cycle ~n:2 ()
 ;;
 
@@ -79,15 +84,15 @@ let%expect_test "Sample test" =
   Harness.run_advanced ~create:Aoc_2025.Day3.hierarchical
     (day3_tb "../../../../../../data/sample3");
   [%expect {|
-    ("Part 1" (part1 357))
-    ("Part 2" (part2 3121910778619))
+    0000000357
+    00000003121910778619
     |}]
 ;;
 let%expect_test "Real input test" =
   Harness.run_advanced ~create:Aoc_2025.Day3.hierarchical
     (day3_tb "../../../../../../data/data3");
   [%expect {|
-    ("Part 1" (part1 17179))
-    ("Part 2" (part2 170025781683941))
+    0000017179
+    00000170025781683941
     |}]
 ;;
