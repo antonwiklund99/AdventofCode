@@ -123,7 +123,9 @@ let create scope ({clock; clear; uart_tx_ready; uart_rx_data; uart_rx_overflow} 
           res1 <-- res1.value +:. 1;
         ];
         move_to_next ();
-        when_ (current_row.value ==:. 0) [fifo_wr <-- gnd];
+        when_ (current_row.value ==:. 0) [
+          fifo_wr <-- gnd; (* first time here prev_line is not valid, so it should not be written *)
+        ]; 
         when_ (last.value) [
           sm.set_next Part2;
         ];
@@ -142,6 +144,7 @@ let create scope ({clock; clear; uart_tx_ready; uart_rx_data; uart_rx_overflow} 
         ];
         when_ (last.value) [
           p2_done <-- vdd;
+          (* iterate through FIFO until we have not removed any rolls for a full cycle *)
           when_ (p2_done.value &: ~:(removeable)) [
             sm.set_next Send_result
           ];

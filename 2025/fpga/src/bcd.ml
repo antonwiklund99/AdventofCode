@@ -26,6 +26,7 @@ let rec double_dabble_rec value bit bcd =
     let value = sll ~by:1 value in
     double_dabble_rec value (bit + 1) bcd
 
+(* Single cycle binary to bcd conversion *)
 let bin_2_bcd ~clock ~clear ?(ready = vdd) (x : _ With_valid.t) =
   let spec = Reg_spec.create ~clock ~clear () in
   let num_digits = 
@@ -47,8 +48,8 @@ let bin_2_str ~clock ~clear x =
   split_lsb ~part_width:4 bcd.value |> List.map ~f:digit_2_char |> concat_msb
 ;;
 
+(* Single cycle bcd to binary conversion *)
 let bcd_2_bin ~clock ~clear ~valid ?(ready = vdd) digits =
-  (* TODO: improve *)
   let spec = Reg_spec.create ~clock ~clear () in
   let max_value = (Int.pow 10 (List.length digits)) - 1 in
   let max_width = num_bits_to_represent max_value in

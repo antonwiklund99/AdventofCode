@@ -43,11 +43,26 @@ def day4(ser, use_sample):
     print(f"Part 1: {int(ser.readline().strip())}")
     print(f"Part 2: {int(ser.readline().strip())}")
 
+def day5(ser, use_sample):
+    input_file = "sample5" if use_sample else "data5"
+    with open(os.path.join(DATA_DIR, input_file), "r") as f:
+        [intervals,nums] = f.read().strip().split("\n\n")
+        for interval in intervals.strip().splitlines():
+            [a,b] = [int(x) for x in interval.split("-")]
+            ser.write(a.to_bytes(7, byteorder="little"))
+            ser.write(b.to_bytes(7, byteorder="little"))
+        ser.write(7 * b"\xff")
+        for num in nums.strip().splitlines():
+            ser.write(int(num).to_bytes(7, byteorder="little"))
+        ser.write(7 * b"\xff")
+    print(f"Part 1: {int(ser.readline().strip())}")
+    print(f"Part 2: {int(ser.readline().strip())}")
+
 if __name__ == "__main__":
     ser = serial.Serial("/dev/ttyUSB1", 115200, timeout=1, xonxoff=True)
 
     parser = argparse.ArgumentParser(description='Send input data to fpga and read solution.')
-    parser.add_argument("day", type=int, choices=[1,2,3,4])
+    parser.add_argument("day", type=int, choices=[1,2,3,4,5])
     parser.add_argument("--sample", action="store_true", help="Send sample data")
     args = parser.parse_args()
 
@@ -59,5 +74,7 @@ if __name__ == "__main__":
         day3(ser, args.sample)
     elif args.day == 4:
         day4(ser, args.sample)
+    elif args.day == 5:
+        day5(ser, args.sample)
 
     ser.close()
